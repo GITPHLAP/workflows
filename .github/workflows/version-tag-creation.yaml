@@ -22,11 +22,11 @@ jobs:
     outputs:
       version: ${{steps.create_push_tag.outputs.final_version}}
       increment: ${{steps.semver.outputs.increment}}
-    # permissions:
-    #   contents: write
-    #   packages: write
-    #   id-token: write
-    #   pull-requests: write
+    permissions:
+      contents: write
+      # packages: write
+      # id-token: write
+      # pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
