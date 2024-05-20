@@ -28,6 +28,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.USER_TOKEN }}
       # Extract versioning from git tags and commits, following semantic versioning rules.
       - uses: paulhatch/semantic-version@v5.4.0
         id: semver
@@ -56,7 +57,7 @@ jobs:
       - name: Create and push tag
         id: create_push_tag
         run: |
-          git config --global url.https://${{secrets.GITHUB_TOKEN}}@github.com/.insteadOf https://github.com/ && \
+          git config --global url.https://${{secrets.USER_TOKEN}}@github.com/.insteadOf https://github.com/ && \
           export TAG_VERSION=${{steps.get_version_from_commit.outputs.version == '' && format('v{0}.{1}.{2}', steps.semver.outputs.major, steps.semver.outputs.minor, steps.semver.outputs.patch) || steps.get_version_from_commit.outputs.version}} && \
           echo "final_version=$TAG_VERSION" >> $GITHUB_OUTPUT && \
           git tag $TAG_VERSION && \
