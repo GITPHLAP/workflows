@@ -1,6 +1,13 @@
 name: Version and Github tag
 on:
   workflow_call:
+    outputs:
+      version:
+        value: ${{jobs.version.outputs.version}}
+        description: Version in format v0.0.0
+      increment:
+        value: ${{jobs.version.outputs.increment}}
+        description: Increment number
     secrets:
       USER_TOKEN:
         required: true
