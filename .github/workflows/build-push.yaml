@@ -60,6 +60,6 @@ jobs:
       # This should only be runed on master 
       - name: Create pull request to sync master and develop
         if: github.ref_name == 'master'
-        run: gh pr create -B develop -H master --title ":arrows_counterclockwise: Master into develop" --body "Auto generated pr to merge master into develop"
+        run: gh pr create -B develop -H master --title "🔄 Master into develop" --body "Auto generated pr to merge master into develop"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
