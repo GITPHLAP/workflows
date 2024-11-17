@@ -7,6 +7,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   build:
     name: build docker image
@@ -57,8 +58,54 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             "VERSION=${{github.ref_name}}"
+  fetch-sync-pr:
+    needs: build
+    name: Fetching PR Number of sync PR 
+    runs-on: ubuntu-latest
+    outputs:
+      pr_number: ${{ steps.get-pr-number.outputs.pr_number }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ secrets.USER_TOKEN }}
+      # Check if the sync branch already exists
+      - name: Get PR Number
+        id: get-pr-number
+        run: |
+          PR_NUMBER=$(gh pr list --search "🔄 Master into develop" --json number -q ".[0].number")
+          echo "PR number: $PR_NUMBER"
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+  rebase-sync-pr:
+    needs: fetch-sync-pr
+    runs-on: ubuntu-latest
+    if: ${{ needs.fetch-sync-pr.outputs.pr_number != '' }}
+    steps:
+      - name: Echo pr_number
+        run: echo "${{ needs.fetch-sync-pr.outputs.pr_number }}"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ secrets.USER_TOKEN }}
+      - name: Use PR Number
+        run: gh pr update-branch ${{ needs.fetch-sync-pr.outputs.pr_number }} --rebase
+  create-sync-pr:
+    needs: fetch-sync-pr
+    runs-on: ubuntu-latest
+    if: ${{ needs.fetch-sync-pr.outputs.pr_number == '' }}
+    steps:
+      - name: Echo pr_number
+        run: echo "${{ needs.fetch-sync-pr.outputs.pr_number }}"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ secrets.USER_TOKEN }}
       # This should only be runed on master 
       - name: Create pull request to sync master and develop
         run: gh pr create -B develop -H master --title "🔄 Master into develop" --body "Auto generated pr to merge master into develop"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
