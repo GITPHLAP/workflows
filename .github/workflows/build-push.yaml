@@ -44,7 +44,9 @@ jobs:
           tags: |
             type=schedule
             type=ref,event=tag
+            type=ref,event=branch
             type=semver,pattern={{version}}
+            type=raw,value=${{steps.semver.outputs.version}}
       # Push the image to the registry, excluding push during pull requests.
       - name: Push docker image
         id: push
