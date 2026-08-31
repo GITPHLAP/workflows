@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.USER_TOKEN }}
       # Extract versioning from git tags and commits, following semantic versioning rules.
-      - uses: paulhatch/semantic-version@v6.0.1
+      - uses: paulhatch/semantic-version@v6.0.3
         id: semver
         with:
           tag_prefix: "v"
